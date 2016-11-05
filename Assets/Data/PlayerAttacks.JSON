@@ -1,0 +1,111 @@
+﻿{
+    "first_normal_attack": "Attack1",
+    "first_air_normal_attack": "AirAttack1",
+    "first_special_attack": "Special1",
+    "first_air_special_attack": "",
+	"first_up_special_attack": "UpSpecial1",
+	"first_down_special_attack": "DownSpecial1",
+    "first_forward_special_attack": "ForwardSpecial1",
+    "attacks": [
+        {
+            "_animation": 1,
+            "_xinput_lock": true,
+            "_jumpinput_lock": true,
+            "_internal_cooldown": 0.0,
+			"_hack_colour": 0,
+            "_attackKey": "Attack1",
+            "_nextNormalAttackKey": "Attack1",
+            "_nextSpecialAttackKey": "Special1",
+            "_nextUpSpecialAttackKey": "UpSpecial1",
+            "_nextDownSpecialAttackKey": "DownSpecial1",
+            "_nextForwardSpecialAttackKey": "ForwardSpecial1",
+            "_inflicts_knockback": false,
+            "_knockback_vector": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "hitstop_frames": 2,
+            "power": 1
+        },
+		{
+            "_animation": 2,
+            "_xinput_lock": true,
+            "_jumpinput_lock": true,
+            "_internal_cooldown": 0.0,
+			"_hack_colour": 1,
+            "_attackKey": "Special1",
+            "_nextNormalAttackKey": "Attack1",
+            "_nextSpecialAttackKey": "Special1",
+            "_nextUpSpecialAttackKey": "UpSpecial1",
+            "_nextDownSpecialAttackKey": "DownSpecial1",
+            "_nextForwardSpecialAttackKey": "ForwardSpecial1",
+            "_inflicts_knockback": false,
+            "_knockback_vector": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "hitstop_frames": 2,
+            "power": 1
+        },
+		{
+            "_animation": 3,
+            "_xinput_lock": true,
+            "_jumpinput_lock": true,
+            "_internal_cooldown": 0.0,
+			"_hack_colour": 2,
+            "_attackKey": "UpSpecial1",
+            "_nextNormalAttackKey": "Attack1",
+            "_nextSpecialAttackKey": "Special1",
+            "_nextUpSpecialAttackKey": "UpSpecial1",
+            "_nextDownSpecialAttackKey": "DownSpecial1",
+            "_nextForwardSpecialAttackKey": "ForwardSpecial1",
+            "_inflicts_knockback": false,
+            "_knockback_vector": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "hitstop_frames": 2,
+            "power": 1
+        },
+		{
+            "_animation": 4,
+            "_xinput_lock": true,
+            "_jumpinput_lock": true,
+            "_internal_cooldown": 0.0,
+			"_hack_colour": 3,
+            "_attackKey": "DownSpecial1",
+            "_nextNormalAttackKey": "Attack1",
+            "_nextSpecialAttackKey": "Special1",
+            "_nextUpSpecialAttackKey": "UpSpecial1",
+            "_nextDownSpecialAttackKey": "DownSpecial1",
+            "_nextForwardSpecialAttackKey": "ForwardSpecial1",
+            "_inflicts_knockback": false,
+            "_knockback_vector": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "hitstop_frames": 2,
+            "power": 1
+        },
+		{
+            "_animation": 5,
+            "_xinput_lock": true,
+            "_jumpinput_lock": true,
+            "_internal_cooldown": 0.0,
+			"_hack_colour": 4,
+            "_attackKey": "ForwardSpecial1",
+            "_nextNormalAttackKey": "Attack1",
+            "_nextSpecialAttackKey": "Special1",
+            "_nextUpSpecialAttackKey": "UpSpecial1",
+            "_nextDownSpecialAttackKey": "DownSpecial1",
+            "_nextForwardSpecialAttackKey": "ForwardSpecial1",
+            "_inflicts_knockback": false,
+            "_knockback_vector": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "hitstop_frames": 2,
+            "power": 1
+        }
+    ]
+}
