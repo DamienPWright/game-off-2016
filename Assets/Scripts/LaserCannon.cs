@@ -59,13 +59,13 @@ public class LaserCannon : Enemy, IHackableActor {
         */
         //xvel = movement_distance * Mathf.Sin((cycle_timer / cycle_time) * Mathf.PI);
         //xvel = movement_distance * (float)Math.Pow(Mathf.Sin((cycle_timer / cycle_time)), 2f);
-        //xvel = movement_distance * Mathf.Sin((cycle_timer * Mathf.PI / cycle_time));
-        xvel = movement_distance * Mathf.Cos((cycle_timer * Mathf.PI / cycle_time)) * (Mathf.PI / cycle_time);
+        //xvel = movement_distance * Mathf.Sin((cycle_timer * Mathf.PI / cycle_time)); <- Position
+        xvel = movement_distance * Mathf.Cos((cycle_timer * Mathf.PI / cycle_time)) * (Mathf.PI / cycle_time); //<- Differential of position
         yvel = movement_distance * Mathf.Sin(2*(cycle_timer * Mathf.PI / cycle_time)) * (Mathf.PI / cycle_time);
         //xvel = movement_distance * 0.5f * Mathf.Cos((cycle_timer * Mathf.PI / cycle_time));
 
         //_rigidbody.MovePosition(new Vector2(initial_x + xvel, _rigidbody.transform.position.y));
         _rigidbody.velocity = new Vector2(xvel, yvel);
-        Debug.Log(xvel);
+        //Debug.Log(xvel);
     }
 }

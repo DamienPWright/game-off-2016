@@ -1,19 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
     public Player player;
 
     FiniteStateMachine game_state;
-    State_Gameplay state_gameplay;
+    public GameState_Gameplay state_gameplay;
+    public GameState_GameOver state_gameover;
+
+    public MonoBehaviour GameOverText;
     
     // Use this for initialization
 	void Start () {
         game_state = new FiniteStateMachine();
 
-        state_gameplay = new State_Gameplay(this, game_state);
+        state_gameplay = new GameState_Gameplay(this, game_state);
+        state_gameover = new GameState_GameOver(this, game_state);
 
         game_state.ChangeState(state_gameplay);
 	}
@@ -90,18 +95,18 @@ public class GameManager : MonoBehaviour {
     }
 }
 
-public class State_Gameplay : FSM_State {
+public class GameState_Gameplay : FSM_State {
 
     GameManager _gm;
 
-    public State_Gameplay(GameManager gm, FiniteStateMachine fsm) : base(fsm)
+    public GameState_Gameplay(GameManager gm, FiniteStateMachine fsm) : base(fsm)
     {
         _gm = gm;
     }
 
     public override void FixedUpdate()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public override void OnEnter()
@@ -111,11 +116,49 @@ public class State_Gameplay : FSM_State {
 
     public override void OnExit()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public override void Update()
     {
         _gm.ProcessPlayerControls();
+        if (_gm.player.is_dead)
+        {
+            _fsm.ChangeState(_gm.state_gameover);
+        }
+    }
+}
+
+public class GameState_GameOver : FSM_State
+{
+    GameManager _gm;
+
+    public GameState_GameOver(GameManager gm, FiniteStateMachine fsm) : base(fsm)
+    {
+        _gm = gm;
+    }
+
+    public override void FixedUpdate()
+    {
+        //throw new NotImplementedException();
+    }
+
+    public override void OnEnter()
+    {
+        Debug.Log("Gameover!");
+        _gm.GameOverText.enabled = true;
+    }
+
+    public override void OnExit()
+    {
+        //throw new NotImplementedException();
+    }
+
+    public override void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 }

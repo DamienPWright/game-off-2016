@@ -9,12 +9,15 @@ public class Player : Actor, IControllableActor, IAttackableActor {
     public PlayerIdle state_idle;
     public PlayerAirborn state_airborn;
     public PlayerAttack state_attack;
+    public PlayerHurt state_hurt;
+    public PlayerDying state_dying;
+    public PlayerDead state_dead;
     public bool attack_pressed;
     public bool special_pressed;
     bool hit_invuln = false;
     float hit_invuln_counter = 0;
     float hit_invuln_time = 1.0f;
-    float HitInvulnTime
+    public float HitInvulnTime
     {
         get { return hit_invuln_time; }
     }
@@ -156,16 +159,29 @@ public class Player : Actor, IControllableActor, IAttackableActor {
         state_idle = new PlayerIdle(fsm, this);
         state_airborn = new PlayerAirborn(fsm, this);
         state_attack = new PlayerAttack(fsm, this);
+        state_hurt = new PlayerHurt(fsm, this);
+        state_dying = new PlayerDying(fsm, this);
+        state_dead = new PlayerDead(fsm, this);
 
         fsm.ChangeState(state_idle);
+
+        max_health = 10;
+        cur_health = max_health;
 	}
 
     public void takeDamage(int damage)
     {
         if (!hit_invuln)
         {
-            Debug.Log("take damage!");
+            Debug.Log("Player took " + damage + " damage!");
+            cur_health -= damage;
+            if(cur_health <= 0)
+            {
+                fsm.ChangeState(state_dying);
+                return;
+            }
             hit_invuln = true;
+            fsm.ChangeState(state_hurt);
         }
     }
 
@@ -342,63 +358,23 @@ public class PlayerHurt : FSM_State
 {
     Player _player;
     float hurt_time;
+    float hurt_timer = 0.0f;
 
     public PlayerHurt(FiniteStateMachine fsm, Player player) : base(fsm)
     {
         _player = player;
-        hurt_time = _player.
+        hurt_time = _player.HitInvulnTime / 4;
     }
 
     public override void FixedUpdate()
     {
-        if (_player._attack_manager.isXinputLocked())
-        {
-            _player.Horizontal_Movement(0.0f);
-        }
-        else
-        {
-            _player.Horizontal_Movement(_player.hor_move_axis);
-        }
-
-        if (_player._attack_manager.isJumpInputLocked())
-        {
-            _player.Vertical_Movement(false);
-        }
-        else
-        {
-            _player.Vertical_Movement(_player.jump_pressed);
-        }
+        _player.Horizontal_Movement(0.0f);
+        _player.Vertical_Movement(false);
     }
 
     public override void OnEnter()
     {
-        _player._animation_monitor.reset();
-        if (_player.attack_pressed)
-        {
-            _player._attack_manager.doNormalAttack();
-        }
-        else if (_player.special_pressed)
-        {
-            if (_player.up_pressed)
-            {
-                _player._attack_manager.doUpSpecialAttack();
-            }
-            else if (_player.down_pressed)
-            {
-                _player._attack_manager.doDownSpecialAttack();
-            }
-            else if (_player.forward_pressed)
-            {
-                _player._attack_manager.doForwardSpecialAttack();
-            }
-            else
-            {
-                _player._attack_manager.doSpecialAttack();
-            }
-        }
-        Debug.Log("Hack colour: " + _player._attack_manager.getHackColour());
-
-        _player.setAnimation(_player._attack_manager.getAttackAnim());
+        hurt_timer = 0.0f;
     }
 
     public override void OnExit()
@@ -408,10 +384,81 @@ public class PlayerHurt : FSM_State
 
     public override void Update()
     {
-        if (_player._animation_monitor.isAnimationComplete())
+        hurt_timer += Time.deltaTime;
+
+        if(hurt_timer > hurt_time)
         {
             _fsm.ChangeState(_player.state_idle);
-            _player._attack_manager.resetAttackCombo();
         }
+    }
+}
+
+public class PlayerDying : FSM_State
+{
+    Player _player;
+    float dying_time = 2.0f;
+    float dying_timer = 0.0f;
+
+    public PlayerDying(FiniteStateMachine fsm, Player player) : base(fsm)
+    {
+        _player = player;
+    }
+
+    public override void FixedUpdate()
+    {
+        _player.Horizontal_Movement(0.0f);
+        _player.Vertical_Movement(false);
+    }
+
+    public override void OnEnter()
+    {
+        dying_timer = 0.0f;
+    }
+
+    public override void OnExit()
+    {
+
+    }
+
+    public override void Update()
+    {
+        dying_timer += Time.deltaTime;
+
+        if (dying_timer > dying_time)
+        {
+            _fsm.ChangeState(_player.state_dead);
+        }
+    }
+}
+
+public class PlayerDead : FSM_State
+{
+    Player _player;
+
+    public PlayerDead(FiniteStateMachine fsm, Player player) : base(fsm)
+    {
+        _player = player;
+    }
+
+    public override void FixedUpdate()
+    {
+        _player.Horizontal_Movement(0.0f);
+        _player.Vertical_Movement(false);
+    }
+
+    public override void OnEnter()
+    {
+        Debug.Log("Player has died!");
+        _player.is_dead = true;
+    }
+
+    public override void OnExit()
+    {
+
+    }
+
+    public override void Update()
+    {
+
     }
 }
