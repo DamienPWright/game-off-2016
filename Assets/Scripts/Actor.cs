@@ -3,7 +3,36 @@ using System.Collections;
 
 public class Actor : MonoBehaviour {
 
-    protected Rigidbody2D _rigidbody;
+    public const float ACCEL_TIME = 0.3f;
+    public const float AIR_ACCEL_TIME = 0.6f;
+    public const float AIR_DECEL_TIME = 0.6f;
+    public const float DECEL_TIME = 0.2f;
+    public const float MOVE_SPEED = 5.0f;
+    public const float GRAVITY_SCALE = 5.0f;
+    public const float AIR_GRAVITY_SCALE = 2.0f;
+    public const float JUMPSPEED = 15;
+    public const float FALLSPEED = 30;
+
+    public float hor_move_axis = 0.0f;
+    public float movespeed = MOVE_SPEED;
+    public float accel_time = ACCEL_TIME;
+    public float decel_time = DECEL_TIME;
+    public float jumpspeed = JUMPSPEED;
+    public float fallspeed = FALLSPEED;
+
+    public bool jump_pressed = false;
+    public bool up_pressed = false;
+    public bool down_pressed = false;
+    public bool forward_pressed = false;
+    public bool jump_locked = false;
+
+    public int max_health = 0;
+    public int cur_health = 0;
+    public bool is_dead = false;
+
+
+    public Rigidbody2D _rigidbody;
+
     protected BoxCollider2D _boxCollider;
     protected Transform _transform;
 
@@ -55,7 +84,82 @@ public class Actor : MonoBehaviour {
         }
     }
 
-    
+    public void Horizontal_Movement(float direction)
+    {
+        if (direction != 0)
+        {
+            float movement = direction * (movespeed * Time.fixedDeltaTime) / accel_time;
+            if (direction > 0)
+            {
+                _rigidbody.velocity = new Vector2(Mathf.Min(_rigidbody.velocity.x + movement, movespeed), _rigidbody.velocity.y);
+                _transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                facing_right = true;
+            }
+            else
+            {
+                _rigidbody.velocity = new Vector2(Mathf.Max(_rigidbody.velocity.x + movement, -movespeed), _rigidbody.velocity.y);
+                _transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+                facing_right = false;
+            }
+
+        }
+        else
+        {
+            float movement = (movespeed * Time.fixedDeltaTime) / decel_time;
+
+            if (_rigidbody.velocity.x > 0)
+            {
+                movement *= -1;
+            }
+
+            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + movement, _rigidbody.velocity.y);
+
+            if (_rigidbody.velocity.x > -3.5 && _rigidbody.velocity.x < 3.5 && isOnGround)
+            {
+                _rigidbody.velocity = new Vector2(0, _rigidbody.velocity.y);
+            }
+
+
+        }
+    }
+
+
+    public void Vertical_Movement(bool jumping)
+    {
+        //TODO - Find some way of enforcing explicit pressing of the jump key so holding jump wont make you bounce.
+        if (isOnGround && jumping)
+        {
+            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, jumpspeed);
+        }
+
+        if (_rigidbody.velocity.y > 0 && jumping)
+        {
+            //lower gravity's effect
+            _rigidbody.gravityScale = AIR_GRAVITY_SCALE;
+        }
+
+        if (_rigidbody.velocity.y < 0 || !jumping)
+        {
+            //lower gravity's effect
+            _rigidbody.gravityScale = GRAVITY_SCALE;
+            //disable the jump key
+            //may want an additional condition to allow for multi-jump
+            jump_locked = true;
+
+        }
+
+        if (_rigidbody.velocity.y == 0 || isOnGround)
+        {
+            jump_locked = false;
+        }
+
+        //cap fallspeed
+        if (_rigidbody.velocity.y < -fallspeed)
+        {
+            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, -fallspeed);
+        }
+    }
+
 
     public Transform actorTransform
     {
@@ -96,6 +200,11 @@ public class Actor : MonoBehaviour {
     public virtual void applyControlledImpulse(int index)
     {
 
+    }
+
+    public void BounceActor(Vector2 bounce)
+    {
+        _rigidbody.AddForce(bounce, ForceMode2D.Impulse);
     }
 
     public void ApplyHitStop(int frames)

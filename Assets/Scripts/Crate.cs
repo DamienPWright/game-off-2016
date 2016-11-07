@@ -4,34 +4,106 @@ using System;
 
 public class Crate : Actor, IHackableActor, IAttackableActor {
 
+    public BoxCollider2D spikebox;
+    public BoxCollider2D solidbox;
+    public bool is_bouncy = false;
+    bool spikes_out = false;
+
     public void knockBack(Vector2 knockback)
     {
-        throw new NotImplementedException();
+        Debug.Log("Knockback");
+        _rigidbody.AddForce(knockback, ForceMode2D.Impulse);
     }
 
     public void onHackBlue()
     {
-        throw new NotImplementedException();
+        if (is_bouncy)
+        {
+            is_bouncy = false;
+        }
+        else
+        {
+            is_bouncy = true;
+        }
+
+        _spriteRenderer.color = new Color(0, 0, 1.0f);
     }
 
     public void onHackCyan()
     {
-        throw new NotImplementedException();
+        
+        _spriteRenderer.color = new Color(0.5f, 0.5f, 1.0f);
     }
 
     public void onHackPurple()
     {
-        throw new NotImplementedException();
+        if (gameObject.layer == 8)
+        {
+            gameObject.layer = 9;
+        }
+        else
+        {
+            gameObject.layer = 8;
+        }
+        
+        _spriteRenderer.color = new Color(0.7f, 0, 0.7f);
     }
 
     public void onHackRed()
     {
-        throw new NotImplementedException();
+        if (spikes_out)
+        {
+            spikes_out = false;
+        }
+        else
+        {
+            spikes_out = true;
+        }
+
+        spikebox.enabled = spikes_out;
+        
+        _spriteRenderer.color = new Color(1.0f, 0, 0);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!spikes_out)
+        {
+            return;
+        }
+        if (other.CompareTag("Attackable"))
+        {
+            Debug.Log("Attackable entered trigger");
+            MonoBehaviour script = other.GetComponentInParent<MonoBehaviour>();
+            if(script is IAttackableActor)
+            {
+                (script as IAttackableActor).takeDamage(3);
+                (script as IAttackableActor).knockBack(new Vector2(6.0f, 6.0f));
+            }
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!is_bouncy)
+        {
+            return;
+        }
+        if (collision.gameObject.CompareTag("Actor"))
+        {
+            MonoBehaviour script = collision.gameObject.GetComponentInParent<MonoBehaviour>();
+            if (script is Actor)
+            {
+                    (script as Actor).BounceActor(new Vector2(-collision.contacts[0].normal.x * 5, 
+                        -collision.contacts[0].normal.y * 10));
+                    //Debug.Log(collision.contacts[0].normal.x + " " + collision.contacts[0].normal.y);
+            }
+        }
     }
 
     public void takeDamage(int damage)
     {
-        throw new NotImplementedException();
+        Debug.Log("Crate took damage");
     }
 
     // Update is called once per frame

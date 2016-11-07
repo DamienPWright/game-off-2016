@@ -2,42 +2,63 @@
 using System.Collections;
 using System;
 
-public class Player : Actor, IControllableActor {
+public class Player : Actor, IControllableActor, IAttackableActor {
 
-    const float ACCEL_TIME = 0.3f;
-    const float AIR_ACCEL_TIME = 0.6f;
-    const float AIR_DECEL_TIME = 0.6f;
-    const float DECEL_TIME = 0.2f;
-    const float MOVE_SPEED = 5.0f;
-    const float GRAVITY_SCALE = 5.0f;
-    const float AIR_GRAVITY_SCALE = 2.0f;
-    const float JUMPSPEED = 15;
-    const float FALLSPEED = 30;
-
-    public float hor_move_axis = 0.0f;
-    public float movespeed = MOVE_SPEED;
-    public float accel_time = ACCEL_TIME;
-    public float decel_time = DECEL_TIME;
-    public float jumpspeed = JUMPSPEED;
-    public float fallspeed = FALLSPEED;
-
-    public bool jump_pressed = false;
-    public bool up_pressed = false;
-    public bool down_pressed = false;
-    public bool forward_pressed = false;
-    public bool jump_locked = false;
+    
 
     public PlayerIdle state_idle;
     public PlayerAirborn state_airborn;
     public PlayerAttack state_attack;
     public bool attack_pressed;
     public bool special_pressed;
+    bool hit_invuln = false;
+    float hit_invuln_counter = 0;
+    float hit_invuln_time = 1.0f;
+    float HitInvulnTime
+    {
+        get { return hit_invuln_time; }
+    }
+    bool hit_flicker = false;
 
     public enum AnimId
     {
         idle=0,
         attack1
     }
+
+    void Update()
+    {
+        fsm.Update();
+        if (hit_invuln)
+        {
+           ProcessHitFlicker();
+        }
+    }
+
+    void ProcessHitFlicker()
+    {
+        if (hit_invuln_counter < hit_invuln_time)
+        {
+            hit_invuln_counter += Time.deltaTime;
+            if (hit_flicker)
+            {
+                hit_flicker = false;
+            }
+            else
+            {
+                hit_flicker = true;
+            }
+            _spriteRenderer.enabled = hit_flicker;
+        }
+        else
+        {
+            hit_invuln_counter = 0.0f;
+            hit_invuln = false;
+            hit_flicker = false;
+            _spriteRenderer.enabled = true;
+        }
+    }
+
 
     //IControllableActor
     public void Attack()
@@ -138,82 +159,27 @@ public class Player : Actor, IControllableActor {
 
         fsm.ChangeState(state_idle);
 	}
-	
 
-    public void Horizontal_Movement(float direction)
+    public void takeDamage(int damage)
     {
-        if (direction != 0)
+        if (!hit_invuln)
         {
-            float movement = direction * (movespeed * Time.fixedDeltaTime) / accel_time;
-            if (direction > 0)
-            {
-                _rigidbody.velocity = new Vector2(Mathf.Min(_rigidbody.velocity.x + movement, movespeed), _rigidbody.velocity.y);
-                _transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                facing_right = true;
-            }
-            else
-            {
-                _rigidbody.velocity = new Vector2(Mathf.Max(_rigidbody.velocity.x + movement, -movespeed), _rigidbody.velocity.y);
-                _transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
-                facing_right = false;
-            }
-
-        }
-        else
-        {
-            float movement = (movespeed * Time.fixedDeltaTime) / decel_time;
-
-            if (_rigidbody.velocity.x > 0)
-            {
-                movement *= -1;
-            }
-
-            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + movement, _rigidbody.velocity.y);
-
-            if (_rigidbody.velocity.x > -movement * 2 && _rigidbody.velocity.x < movement * 2)
-            {
-                _rigidbody.velocity = new Vector2(0, _rigidbody.velocity.y);
-            }
-
-
+            Debug.Log("take damage!");
+            hit_invuln = true;
         }
     }
 
-
-    public void Vertical_Movement(bool jumping)
+    public void knockBack(Vector2 knockback)
     {
-        //TODO - Find some way of enforcing explicit pressing of the jump key so holding jump wont make you bounce.
-        if (isOnGround && jumping)
+        if (facing_right)
         {
-            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, jumpspeed);
+            _rigidbody.velocity = new Vector2(-knockback.x, knockback.y);
         }
-
-        if (_rigidbody.velocity.y > 0 && jumping)
+        else
         {
-            //lower gravity's effect
-            _rigidbody.gravityScale = AIR_GRAVITY_SCALE;
+            _rigidbody.velocity = new Vector2(knockback.x, knockback.y);
         }
-
-        if (_rigidbody.velocity.y < 0 || !jumping)
-        {
-            //lower gravity's effect
-            _rigidbody.gravityScale = GRAVITY_SCALE;
-            //disable the jump key
-            //may want an additional condition to allow for multi-jump
-            jump_locked = true;
-
-        }
-
-        if (_rigidbody.velocity.y == 0 || isOnGround)
-        {
-            jump_locked = false;
-        }
-
-        //cap fallspeed
-        if (_rigidbody.velocity.y < -fallspeed)
-        {
-            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, -fallspeed);
-        }
+        
     }
 }
 
@@ -360,6 +326,84 @@ public class PlayerAttack : FSM_State
     public override void OnExit()
     {
         
+    }
+
+    public override void Update()
+    {
+        if (_player._animation_monitor.isAnimationComplete())
+        {
+            _fsm.ChangeState(_player.state_idle);
+            _player._attack_manager.resetAttackCombo();
+        }
+    }
+}
+
+public class PlayerHurt : FSM_State
+{
+    Player _player;
+    float hurt_time;
+
+    public PlayerHurt(FiniteStateMachine fsm, Player player) : base(fsm)
+    {
+        _player = player;
+        hurt_time = _player.
+    }
+
+    public override void FixedUpdate()
+    {
+        if (_player._attack_manager.isXinputLocked())
+        {
+            _player.Horizontal_Movement(0.0f);
+        }
+        else
+        {
+            _player.Horizontal_Movement(_player.hor_move_axis);
+        }
+
+        if (_player._attack_manager.isJumpInputLocked())
+        {
+            _player.Vertical_Movement(false);
+        }
+        else
+        {
+            _player.Vertical_Movement(_player.jump_pressed);
+        }
+    }
+
+    public override void OnEnter()
+    {
+        _player._animation_monitor.reset();
+        if (_player.attack_pressed)
+        {
+            _player._attack_manager.doNormalAttack();
+        }
+        else if (_player.special_pressed)
+        {
+            if (_player.up_pressed)
+            {
+                _player._attack_manager.doUpSpecialAttack();
+            }
+            else if (_player.down_pressed)
+            {
+                _player._attack_manager.doDownSpecialAttack();
+            }
+            else if (_player.forward_pressed)
+            {
+                _player._attack_manager.doForwardSpecialAttack();
+            }
+            else
+            {
+                _player._attack_manager.doSpecialAttack();
+            }
+        }
+        Debug.Log("Hack colour: " + _player._attack_manager.getHackColour());
+
+        _player.setAnimation(_player._attack_manager.getAttackAnim());
+    }
+
+    public override void OnExit()
+    {
+
     }
 
     public override void Update()

@@ -19,10 +19,10 @@
             "_nextUpSpecialAttackKey": "UpSpecial1",
             "_nextDownSpecialAttackKey": "DownSpecial1",
             "_nextForwardSpecialAttackKey": "ForwardSpecial1",
-            "_inflicts_knockback": false,
+            "_inflicts_knockback": true,
             "_knockback_vector": {
-                "x": 0.0,
-                "y": 0.0
+                "x": 5.0,
+                "y": 5.0
             },
             "hitstop_frames": 2,
             "power": 1
@@ -32,7 +32,7 @@
             "_xinput_lock": true,
             "_jumpinput_lock": true,
             "_internal_cooldown": 0.0,
-			"_hack_colour": 1,
+			"_hack_colour": 4,
             "_attackKey": "Special1",
             "_nextNormalAttackKey": "Attack1",
             "_nextSpecialAttackKey": "Special1",
@@ -52,7 +52,7 @@
             "_xinput_lock": true,
             "_jumpinput_lock": true,
             "_internal_cooldown": 0.0,
-			"_hack_colour": 2,
+			"_hack_colour": 1,
             "_attackKey": "UpSpecial1",
             "_nextNormalAttackKey": "Attack1",
             "_nextSpecialAttackKey": "Special1",
@@ -92,7 +92,7 @@
             "_xinput_lock": true,
             "_jumpinput_lock": true,
             "_internal_cooldown": 0.0,
-			"_hack_colour": 4,
+			"_hack_colour": 2,
             "_attackKey": "ForwardSpecial1",
             "_nextNormalAttackKey": "Attack1",
             "_nextSpecialAttackKey": "Special1",

@@ -360,6 +360,16 @@ public class AttackManager
         return current_attack.Hitstop_frames;
     }
 
+    public bool inflictsKnockback()
+    {
+        return current_attack.Inflicts_knockback;
+    }
+
+    public Vector2 getKnockbackVector()
+    {
+        return current_attack.Knockback_vector;
+    }
+
     public void endAttack()
     {
         current_attack.EndAttack();

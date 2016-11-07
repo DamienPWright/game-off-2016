@@ -110,14 +110,52 @@ public class HitBoxManager : MonoBehaviour
     {
         if (other.gameObject.tag == "Attackable")
         {
-            //Debug.Log("Collider hit attackable");
+            Debug.Log("Collider hit attackable");
             //there may be a better way to do this part... 
-            MonoBehaviour script = other.GetComponent<MonoBehaviour>();
+            MonoBehaviour script = other.GetComponentInParent<MonoBehaviour>();
+            Debug.Log(script);
             if (script is IAttackableActor)
             {
+                Debug.Log("Attackable Actor hit");
+                Debug.Log(owner);
                 (script as IAttackableActor).takeDamage(owner._attack_manager.getAttackPower());
-                (script as Actor).ApplyHitStop(owner._attack_manager.getHitStopFrames());
-                owner.ApplyHitStop(owner._attack_manager.getHitStopFrames());
+                if (owner._attack_manager.inflictsKnockback())
+                {
+                    Vector2 vector = new Vector2(owner._attack_manager.getKnockbackVector().x, 
+                        owner._attack_manager.getKnockbackVector().y);
+
+                    if (!owner.IsFacingRight)
+                    {
+                        vector.x = -vector.x;
+                    }
+
+                    (script as IAttackableActor).knockBack(vector);
+                }
+                //(script as Actor).ApplyHitStop(owner._attack_manager.getHitStopFrames());
+                //owner.ApplyHitStop(owner._attack_manager.getHitStopFrames());
+            }
+
+            if (script is IHackableActor)
+            {
+                Debug.Log("Hackable actor hit");
+                Debug.Log("Hack color: " + owner._attack_manager.getHackColour());
+                switch (owner._attack_manager.getHackColour())
+                {
+                    case (int)HelperClass.HackColorIds.Blue:
+                        (script as IHackableActor).onHackBlue();
+                        break;
+                    case (int)HelperClass.HackColorIds.Red:
+                        (script as IHackableActor).onHackRed();
+                        break;
+                    case (int)HelperClass.HackColorIds.Cyan:
+                        (script as IHackableActor).onHackCyan();
+                        break;
+                    case (int)HelperClass.HackColorIds.Purple:
+                        (script as IHackableActor).onHackPurple();
+                        break;
+                    case (int)HelperClass.HackColorIds.None:
+                        break;
+                }
             }
         }
     }

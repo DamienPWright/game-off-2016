@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\AttackContainer.cs" />
     <Compile Include="Assets\Scripts\AttackManager.cs" />
     <Compile Include="Assets\Scripts\Crate.cs" />
+    <Compile Include="Assets\Scripts\Enemy.cs" />
     <Compile Include="Assets\Scripts\FSM_State.cs" />
     <Compile Include="Assets\Scripts\FiniteStateMachine.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
@@ -85,7 +86,9 @@
     <Compile Include="Assets\Scripts\Interfaces\IControllableActor.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IHackableActor.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargetableActor.cs" />
+    <Compile Include="Assets\Scripts\LaserCannon.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\TestEnemy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

@@ -3,7 +3,7 @@ using System.Collections;
 
 public static class HelperClass {
 
-	enum HackColorIds
+	public enum HackColorIds
     {
         None=0,
         Red,
