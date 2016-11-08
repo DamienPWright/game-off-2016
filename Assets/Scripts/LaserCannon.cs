@@ -12,31 +12,77 @@ public class LaserCannon : Enemy, IHackableActor {
     float initial_x = 0.0f;
     float dist = 0.0f;
     public Transform laser_emitter;
-    public SpriteRenderer Laserbeam;
+    public GameObject Laserbeam;
+    public SpriteRenderer LaserbeamSprite;
     public Transform LaserbeamTransform;
-    public SpriteRenderer LaserbeamImpact;
+    public GameObject LaserbeamImpact;
+    public SpriteRenderer LaserbeamImpactSprite;
     public Transform LaserBeamImpactTransform;
+    public GameObject hurtbox_ref;
+
+    public bool red_hack_active = false;
+    public bool purple_hack_active = false;
 
     float laserbeamInitialLength;
 
     public void onHackBlue()
     {
-        throw new NotImplementedException();
+        
     }
 
     public void onHackCyan()
     {
-        throw new NotImplementedException();
+        
     }
 
     public void onHackPurple()
     {
-        throw new NotImplementedException();
+       
+
+
+        if (gameObject.layer == 8)
+        {
+            gameObject.layer = 9;
+            Laserbeam.layer = 9;
+            _spriteRenderer.color = new Color(1, 0, 1);
+            purple_hack_active = true;
+            LaserbeamSprite.color = _spriteRenderer.color;
+            LaserbeamImpactSprite.color = _spriteRenderer.color;
+        }
+        else
+        {
+            gameObject.layer = 8;
+            Laserbeam.layer = 0;
+            purple_hack_active = false;
+            _spriteRenderer.color = Color.white;
+            if (red_hack_active)
+            {
+                LaserbeamSprite.color = Color.red;
+                LaserbeamImpactSprite.color = Color.red;
+            }
+            else
+            {
+                LaserbeamSprite.color = Color.white;
+                LaserbeamImpactSprite.color = Color.white;
+            }
+        }
     }
 
     public void onHackRed()
     {
-        throw new NotImplementedException();
+        if (red_hack_active)
+        {
+            red_hack_active = false;
+            LaserbeamSprite.color = Color.white;
+            LaserbeamImpactSprite.color = Color.white;
+        }
+        else
+        {
+            red_hack_active = true;
+            LaserbeamSprite.color = Color.red;
+            LaserbeamImpactSprite.color = Color.red;
+        }
+       
     }
 
     // Use this for initialization
@@ -54,19 +100,19 @@ public class LaserCannon : Enemy, IHackableActor {
     {
         float distance = 0.0f;
         RaycastHit2D hit = Physics2D.Raycast(laser_emitter.position, -Vector3.up, 50.0f, LayerMask.GetMask("env_solid"));
-        Debug.DrawLine(laser_emitter.position, laser_emitter.position + Vector3.right, Color.cyan);
-        Debug.DrawRay(laser_emitter.position, -Vector3.up * dist, Color.green);
-        Debug.DrawLine(hit.transform.position, hit.transform.position + Vector3.right, Color.cyan);
-        Debug.DrawLine(hit.point, hit.point + Vector2.right, Color.cyan);
-        Debug.Log(transform.position.y + " " + laser_emitter.position.y);
+        //Debug.DrawLine(laser_emitter.position, laser_emitter.position + Vector3.right, Color.cyan);
+        //Debug.DrawRay(laser_emitter.position, -Vector3.up * dist, Color.green);
+        //Debug.DrawLine(hit.transform.position, hit.transform.position + Vector3.right, Color.cyan);
+        //Debug.DrawLine(hit.point, hit.point + Vector2.right, Color.cyan);
+        //Debug.Log(transform.position.y + " " + laser_emitter.position.y);
         if(hit.collider != null)
         {
             distance = Mathf.Abs(hit.point.y - laser_emitter.position.y);
-            LaserbeamImpact.enabled = true;
+            LaserbeamImpactSprite.enabled = true;
             LaserBeamImpactTransform.position = hit.point;
-            Laserbeam.transform.localScale = new Vector3(Laserbeam.transform.localScale.x,
+            LaserbeamSprite.transform.localScale = new Vector3(LaserbeamSprite.transform.localScale.x,
                 distance,
-                Laserbeam.transform.localScale.z);
+                LaserbeamSprite.transform.localScale.z);
 
             LaserbeamTransform.localPosition = new Vector3(
                     LaserbeamTransform.localPosition.x,
@@ -75,8 +121,43 @@ public class LaserCannon : Enemy, IHackableActor {
                 );
             
         }
-        Debug.Log("Beamlength:  " + laserbeamInitialLength + " * " + distance);
+        //Debug.Log("Beamlength:  " + laserbeamInitialLength + " * " + distance);
         return (distance);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (purple_hack_active)
+        {
+            return;
+        }
+        
+        //Debug.Log("something entered trigger");
+        if (other.gameObject.CompareTag("Attackable"))
+        {
+            MonoBehaviour script = other.gameObject.GetComponentInParent<MonoBehaviour>();
+
+            if(script is Actor)
+            {
+                if((script as Actor).IsPlayer)
+                {
+                    damageTarget(script);
+                }
+                else if(red_hack_active)
+                {
+                    damageTarget(script);
+                }
+            }
+        }
+    }
+
+    void damageTarget(MonoBehaviour script)
+    {
+        if(script is IAttackableActor)
+        {
+            (script as IAttackableActor).takeDamage(2);
+            (script as IAttackableActor).knockBack(new Vector2(1, 1));
+        }
     }
 
     // Update is called once per frame

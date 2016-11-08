@@ -32,6 +32,7 @@ public class Actor : MonoBehaviour {
 
 
     public Rigidbody2D _rigidbody;
+    public Rigidbody2D _platform;
 
     protected BoxCollider2D _boxCollider;
     protected Transform _transform;
@@ -101,7 +102,16 @@ public class Actor : MonoBehaviour {
                 _transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
                 facing_right = false;
             }
-
+            //Seems to have a bug where when you're moving the same direction as the platform, your velocity goes the wrong way.
+            /*
+            if ((_platform != null))
+            {
+                Debug.Log("player xvel: " + _rigidbody.velocity.x + " platform xvel: " + _platform.velocity.x);
+                _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + _platform.velocity.x,
+                    _rigidbody.velocity.y);
+                Debug.Log("player total xvel: " + _rigidbody.velocity.x);
+            }
+            */
         }
         else
         {
@@ -119,7 +129,10 @@ public class Actor : MonoBehaviour {
                 _rigidbody.velocity = new Vector2(0, _rigidbody.velocity.y);
             }
 
-
+            if ((_platform != null))
+            {
+                _rigidbody.velocity = new Vector2(_platform.velocity.x, _platform.velocity.y);
+            }
         }
     }
 
@@ -180,6 +193,24 @@ public class Actor : MonoBehaviour {
         distToGround = _boxCollider.bounds.extents.y;
     }
 
+    void OnCollisionStay2D(Collision2D collider)
+    {
+        foreach(ContactPoint2D contact in collider.contacts)
+        {
+            if(contact.normal.y == 1.0)
+            {
+                //if(isPlayer)Debug.Log("player is standing on a rigidbody");
+                _platform = collider.gameObject.GetComponent<Rigidbody2D>();
+                //if(isPlayer)Debug.Log(_platform);
+            }
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collider)
+    {
+        _platform = null;
+    }
+
     bool IsGrounded()
     {
         Vector3 extent_A = new Vector3(_boxCollider.bounds.extents.x, 0.0f, 0.0f);
@@ -187,8 +218,12 @@ public class Actor : MonoBehaviour {
 
         Debug.DrawRay(transform.position + extent_A, -Vector3.up * (distToGround + 0.1f), Color.green);
         Debug.DrawRay(transform.position + extent_B, -Vector3.up * (distToGround + 0.1f), Color.green);
+
+        
+
         bool detector_A = Physics2D.Raycast(transform.position + extent_A, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
         bool detector_B = Physics2D.Raycast(transform.position + extent_B, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
+
         return (detector_A || detector_B);
     }
 

@@ -171,22 +171,30 @@ public class Player : Actor, IControllableActor, IAttackableActor {
 
     public void takeDamage(int damage)
     {
-        if (!hit_invuln)
+        if(hit_invuln || is_dead)
         {
-            Debug.Log("Player took " + damage + " damage!");
-            cur_health -= damage;
-            if(cur_health <= 0)
-            {
-                fsm.ChangeState(state_dying);
-                return;
-            }
-            hit_invuln = true;
-            fsm.ChangeState(state_hurt);
+            return;
         }
+
+        Debug.Log("Player took " + damage + " damage!");
+       cur_health -= damage;
+       if(cur_health <= 0)
+       {
+           fsm.ChangeState(state_dying);
+           return;
+       }
+       hit_invuln = true;
+       fsm.ChangeState(state_hurt);
+
     }
 
     public void knockBack(Vector2 knockback)
     {
+        if (hit_invuln)
+        {
+            return;
+        }
+
         if (facing_right)
         {
             _rigidbody.velocity = new Vector2(-knockback.x, knockback.y);
@@ -196,6 +204,16 @@ public class Player : Actor, IControllableActor, IAttackableActor {
             _rigidbody.velocity = new Vector2(knockback.x, knockback.y);
         }
         
+    }
+
+    public bool GetIsPlayer()
+    {
+        return isPlayer;
+    }
+
+    public bool GetIsEnemy()
+    {
+        return isEnemy;
     }
 }
 
@@ -274,6 +292,12 @@ public class PlayerAirborn : FSM_State
         if (_player.IsOnGround)
         {
             _fsm.ChangeState(_player.state_idle);
+        }
+
+        if (_player.attack_pressed || _player.special_pressed)
+        {
+            _fsm.ChangeState(_player.state_attack);
+            return;
         }
     }
 }

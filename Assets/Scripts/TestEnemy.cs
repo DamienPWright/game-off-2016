@@ -53,6 +53,16 @@ public class TestEnemy : Enemy, IAttackableActor, IHackableActor {
 
     }
 
+    public bool GetIsPlayer()
+    {
+        return isPlayer;
+    }
+
+    public bool GetIsEnemy()
+    {
+        return isEnemy;
+    }
+
     // Use this for initialization
     protected override void Start()
     {

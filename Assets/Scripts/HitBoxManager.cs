@@ -118,7 +118,7 @@ public class HitBoxManager : MonoBehaviour
             {
                 Debug.Log("Attackable Actor hit");
                 Debug.Log(owner);
-                (script as IAttackableActor).takeDamage(owner._attack_manager.getAttackPower());
+                
                 if (owner._attack_manager.inflictsKnockback())
                 {
                     Vector2 vector = new Vector2(owner._attack_manager.getKnockbackVector().x, 
@@ -131,6 +131,7 @@ public class HitBoxManager : MonoBehaviour
 
                     (script as IAttackableActor).knockBack(vector);
                 }
+                (script as IAttackableActor).takeDamage(owner._attack_manager.getAttackPower());
                 //(script as Actor).ApplyHitStop(owner._attack_manager.getHitStopFrames());
                 //owner.ApplyHitStop(owner._attack_manager.getHitStopFrames());
             }

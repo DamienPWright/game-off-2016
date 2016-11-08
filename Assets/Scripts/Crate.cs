@@ -15,6 +15,16 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
         _rigidbody.AddForce(knockback, ForceMode2D.Impulse);
     }
 
+    public bool GetIsPlayer()
+    {
+        return false;
+    }
+
+    public bool GetIsEnemy()
+    {
+        return false;
+    }
+
     public void onHackBlue()
     {
         if (is_bouncy)
@@ -65,7 +75,7 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
         _spriteRenderer.color = new Color(1.0f, 0, 0);
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerStay2D(Collider2D other)
     {
         if (!spikes_out)
         {
@@ -77,8 +87,8 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
             MonoBehaviour script = other.GetComponentInParent<MonoBehaviour>();
             if(script is IAttackableActor)
             {
-                (script as IAttackableActor).takeDamage(3);
                 (script as IAttackableActor).knockBack(new Vector2(6.0f, 6.0f));
+                (script as IAttackableActor).takeDamage(3);
             }
         }
     }
@@ -95,7 +105,7 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
             if (script is Actor)
             {
                     (script as Actor).BounceActor(new Vector2(-collision.contacts[0].normal.x * 5, 
-                        -collision.contacts[0].normal.y * 10));
+                        -collision.contacts[0].normal.y * 15));
                     //Debug.Log(collision.contacts[0].normal.x + " " + collision.contacts[0].normal.y);
             }
         }
