@@ -10,6 +10,14 @@ public class LaserCannon : Enemy, IHackableActor {
     float xvel = 0.0f;
     float yvel = 0.0f;
     float initial_x = 0.0f;
+    float dist = 0.0f;
+    public Transform laser_emitter;
+    public SpriteRenderer Laserbeam;
+    public Transform LaserbeamTransform;
+    public SpriteRenderer LaserbeamImpact;
+    public Transform LaserBeamImpactTransform;
+
+    float laserbeamInitialLength;
 
     public void onHackBlue()
     {
@@ -39,11 +47,42 @@ public class LaserCannon : Enemy, IHackableActor {
         max_health = 5;
         cur_health = max_health;
         initial_x = transform.position.x;
+        laserbeamInitialLength = 1;
+    }
+
+    float getDistanceToGround()
+    {
+        float distance = 0.0f;
+        RaycastHit2D hit = Physics2D.Raycast(laser_emitter.position, -Vector3.up, 50.0f, LayerMask.GetMask("env_solid"));
+        Debug.DrawLine(laser_emitter.position, laser_emitter.position + Vector3.right, Color.cyan);
+        Debug.DrawRay(laser_emitter.position, -Vector3.up * dist, Color.green);
+        Debug.DrawLine(hit.transform.position, hit.transform.position + Vector3.right, Color.cyan);
+        Debug.DrawLine(hit.point, hit.point + Vector2.right, Color.cyan);
+        Debug.Log(transform.position.y + " " + laser_emitter.position.y);
+        if(hit.collider != null)
+        {
+            distance = Mathf.Abs(hit.point.y - laser_emitter.position.y);
+            LaserbeamImpact.enabled = true;
+            LaserBeamImpactTransform.position = hit.point;
+            Laserbeam.transform.localScale = new Vector3(Laserbeam.transform.localScale.x,
+                distance,
+                Laserbeam.transform.localScale.z);
+
+            LaserbeamTransform.localPosition = new Vector3(
+                    LaserbeamTransform.localPosition.x,
+                    -distance / 2,
+                    LaserbeamTransform.localPosition.z
+                );
+            
+        }
+        Debug.Log("Beamlength:  " + laserbeamInitialLength + " * " + distance);
+        return (distance);
     }
 
     // Update is called once per frame
     void Update()
     {
+        dist = getDistanceToGround();
         
     }
 
@@ -60,11 +99,19 @@ public class LaserCannon : Enemy, IHackableActor {
         //xvel = movement_distance * Mathf.Sin((cycle_timer / cycle_time) * Mathf.PI);
         //xvel = movement_distance * (float)Math.Pow(Mathf.Sin((cycle_timer / cycle_time)), 2f);
         //xvel = movement_distance * Mathf.Sin((cycle_timer * Mathf.PI / cycle_time)); <- Position
-        xvel = movement_distance * Mathf.Cos((cycle_timer * Mathf.PI / cycle_time)) * (Mathf.PI / cycle_time); //<- Differential of position
-        yvel = movement_distance * Mathf.Sin(2*(cycle_timer * Mathf.PI / cycle_time)) * (Mathf.PI / cycle_time);
+        //xvel = HelperClass.MoveBackForthSine(movement_distance, cycle_timer, cycle_time); //<- Differential of position
+        //yvel = movement_distance * Mathf.Sin(2*(cycle_timer * Mathf.PI / cycle_time)) * (Mathf.PI / cycle_time);
         //xvel = movement_distance * 0.5f * Mathf.Cos((cycle_timer * Mathf.PI / cycle_time));
 
-        //_rigidbody.MovePosition(new Vector2(initial_x + xvel, _rigidbody.transform.position.y));
+        if(cycle_timer >= cycle_time)
+        {
+            cycle_timer = 0;
+            movement_distance = -movement_distance;
+        }
+
+        xvel = HelperClass.MoveBackForthParabola(movement_distance, cycle_timer, cycle_time);
+
+        //_rigidbody.MovePosition(new Vector2(xvel, _rigidbody.transform.position.y));
         _rigidbody.velocity = new Vector2(xvel, yvel);
         //Debug.Log(xvel);
     }
