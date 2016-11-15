@@ -47,19 +47,13 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
 
     public void knockBack(Vector2 knockback)
     {
-        if (hit_invuln)
+        if (hit_invuln || is_dead)
         {
             return;
         }
 
-        if (facing_right)
-        {
-            _rigidbody.velocity = new Vector2(-knockback.x, knockback.y);
-        }
-        else
-        {
-            _rigidbody.velocity = new Vector2(knockback.x, knockback.y);
-        }
+        _rigidbody.velocity = new Vector2(knockback.x, knockback.y);
+
     }
 
     public void onHackBlue()
@@ -84,6 +78,7 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
             purple_hack_active = true;
             movespeed = MOVE_SPEED * 4;
         }
+        purple_emitter.enabled = purple_hack_active;
     }
 
     public void onHackRed()
@@ -91,13 +86,14 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
         if (red_hack_active)
         {
             red_hack_active = false;
-            _spriteRenderer.color = Color.white;
+            //_spriteRenderer.color = Color.white;
         }
         else
         {
             red_hack_active = true;
-            _spriteRenderer.color = Color.red;
+            //_spriteRenderer.color = Color.red;
         }
+        red_emitter.enabled = red_hack_active;
     }
 
     public void takeDamage(int damage)
@@ -128,11 +124,15 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
 
     void dealContactDamage(IAttackableActor ia)
     {
-        if (red_hack_active || ia.GetIsPlayer())
+        if (ia.GetIsPlayer())
         {
             ia.knockBack(new Vector2(4, 4));
             ia.takeDamage(1);
-            
+        }
+        if (red_hack_active && ia.GetIsEnemy())
+        {
+            ia.knockBack(new Vector2(8, 8));
+            ia.takeDamage(1); 
         }
     }
 
@@ -201,7 +201,7 @@ public class LadybugIdle : FSM_State
 
     public override void OnEnter()
     {
-        Debug.Log("TestEnemy idle entered");
+        //Debug.Log("TestEnemy idle entered");
         idle_timer = 0.0f;
     }
 
@@ -236,7 +236,7 @@ public class LadybugHurt : FSM_State
 
     public override void FixedUpdate()
     {
-        _actor.Horizontal_Movement(0.0f);
+        _actor.Uncontrolled_Horizontal_Movement();
         _actor.Vertical_Movement(false);
     }
 
@@ -329,6 +329,7 @@ public class LadybugDead : FSM_State
     public override void OnEnter()
     {
         Debug.Log("TestEnemy dead");
+        _actor.gameObject.SetActive(false); 
     }
 
     public override void OnExit()
@@ -384,10 +385,20 @@ public class LadybugWander : FSM_State
         if (moving_right)
         {
             _actor.hor_move_axis = 1.0f;
+            if (!_actor.detector_A)
+            {
+                _fsm.ChangeState(_actor.state_idle);
+                return;
+            }
         }
         else
         {
             _actor.hor_move_axis = -1.0f;
+            if (!_actor.detector_B)
+            {
+                _fsm.ChangeState(_actor.state_idle);
+                return;
+            }
         }
 
         move_timer += Time.deltaTime;

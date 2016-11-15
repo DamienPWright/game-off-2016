@@ -1,4 +1,6 @@
-﻿public interface IHackableActor
+﻿using UnityEngine;
+
+public interface IHackableActor
 {
     void onHackRed();
     void onHackBlue();

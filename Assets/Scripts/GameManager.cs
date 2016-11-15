@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
@@ -10,8 +11,13 @@ public class GameManager : MonoBehaviour {
     FiniteStateMachine game_state;
     public GameState_Gameplay state_gameplay;
     public GameState_GameOver state_gameover;
+    public GameState_LevelClear state_levelclear;
+    public LevelGoal level_goal;
+
+    public Slider _health_slider;
 
     public MonoBehaviour GameOverText;
+    public MonoBehaviour LevelClearText;
     
     // Use this for initialization
 	void Start () {
@@ -19,6 +25,7 @@ public class GameManager : MonoBehaviour {
 
         state_gameplay = new GameState_Gameplay(this, game_state);
         state_gameover = new GameState_GameOver(this, game_state);
+        state_levelclear = new GameState_LevelClear(this, game_state);
 
         game_state.ChangeState(state_gameplay);
 	}
@@ -26,6 +33,7 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         game_state.Update();
+        _health_slider.value = (float)player.cur_health / player.max_health;
 	}
 
     public void ProcessPlayerControls()
@@ -125,6 +133,13 @@ public class GameState_Gameplay : FSM_State {
         if (_gm.player.is_dead)
         {
             _fsm.ChangeState(_gm.state_gameover);
+            return;
+        }
+
+        if (_gm.level_goal.level_cleared)
+        {
+            _fsm.ChangeState(_gm.state_levelclear);
+            return;
         }
     }
 }
@@ -149,6 +164,41 @@ public class GameState_GameOver : FSM_State
     {
         Debug.Log("Gameover!");
         _gm.GameOverText.enabled = true;
+    }
+
+    public override void OnExit()
+    {
+        //throw new NotImplementedException();
+    }
+
+    public override void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+    }
+}
+
+
+public class GameState_LevelClear : FSM_State
+{
+    GameManager _gm;
+
+    public GameState_LevelClear(GameManager gm, FiniteStateMachine fsm) : base(fsm)
+    {
+        _gm = gm;
+    }
+
+    public override void FixedUpdate()
+    {
+        //throw new NotImplementedException();
+    }
+
+    public override void OnEnter()
+    {
+        Debug.Log("LevelClear!");
+        _gm.LevelClearText.enabled = true;
     }
 
     public override void OnExit()

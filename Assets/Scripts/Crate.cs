@@ -6,6 +6,9 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
 
     public BoxCollider2D spikebox;
     public BoxCollider2D solidbox;
+
+    public int initialHack = 0;
+
     public bool is_bouncy = false;
     bool spikes_out = false;
 
@@ -35,14 +38,13 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
         {
             is_bouncy = true;
         }
-
-        _spriteRenderer.color = new Color(0, 0, 1.0f);
+        blue_emitter.enabled = is_bouncy;
+        //_spriteRenderer.color = new Color(0, 0, 1.0f);
     }
 
     public void onHackCyan()
     {
         
-        _spriteRenderer.color = new Color(0.5f, 0.5f, 1.0f);
     }
 
     public void onHackPurple()
@@ -50,13 +52,15 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
         if (gameObject.layer == 8)
         {
             gameObject.layer = 9;
+            purple_emitter.enabled = true;
         }
         else
         {
             gameObject.layer = 8;
+            purple_emitter.enabled = false;
         }
         
-        _spriteRenderer.color = new Color(0.7f, 0, 0.7f);
+        //_spriteRenderer.color = new Color(0.7f, 0, 0.7f);
     }
 
     public void onHackRed()
@@ -69,10 +73,10 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
         {
             spikes_out = true;
         }
-
+        red_emitter.enabled = spikes_out;
         spikebox.enabled = spikes_out;
         
-        _spriteRenderer.color = new Color(1.0f, 0, 0);
+        //_spriteRenderer.color = new Color(1.0f, 0, 0);
     }
 
     void OnTriggerStay2D(Collider2D other)
@@ -114,6 +118,33 @@ public class Crate : Actor, IHackableActor, IAttackableActor {
     public void takeDamage(int damage)
     {
         Debug.Log("Crate took damage");
+    }
+
+    protected override void Start()
+    {
+        
+
+        base.Start();
+
+        switch (initialHack)
+        {
+            case 0:
+                break;
+            case 1:
+                onHackRed();
+                break;
+            case 2:
+                onHackBlue();
+                break;
+            case 3:
+                onHackCyan();
+                break;
+            case 4:
+                onHackPurple();
+                break;
+            default:
+                break;
+        }
     }
 
     // Update is called once per frame

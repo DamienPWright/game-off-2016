@@ -9,8 +9,8 @@
     "attacks": [
         {
             "_animation": 1,
-            "_xinput_lock": true,
-            "_jumpinput_lock": true,
+            "_xinput_lock": false,
+            "_jumpinput_lock": false,
             "_internal_cooldown": 0.0,
 			"_hack_colour": 0,
             "_attackKey": "Attack1",

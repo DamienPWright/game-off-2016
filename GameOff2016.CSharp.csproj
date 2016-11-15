@@ -77,6 +77,7 @@
     <Compile Include="Assets\Scripts\FiniteStateMachine.cs" />
     <Compile Include="Assets\Scripts\ForceLaserTest.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Scripts\HeartPickup.cs" />
     <Compile Include="Assets\Scripts\HelperClass.cs" />
     <Compile Include="Assets\Scripts\HitBoxManager.cs" />
     <Compile Include="Assets\Scripts\Interfaces\IAttackableActor.cs" />
@@ -84,7 +85,10 @@
     <Compile Include="Assets\Scripts\Interfaces\IHackableActor.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ITargetableActor.cs" />
     <Compile Include="Assets\Scripts\LaserCannon.cs" />
+    <Compile Include="Assets\Scripts\LevelGoal.cs" />
+    <Compile Include="Assets\Scripts\MovingPlatform.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\Spikes.cs" />
     <Compile Include="Assets\Scripts\TestEnemy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

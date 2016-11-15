@@ -3,10 +3,10 @@ using System.Collections;
 
 public class Actor : MonoBehaviour {
 
-    public const float ACCEL_TIME = 0.3f;
-    public const float AIR_ACCEL_TIME = 0.6f;
-    public const float AIR_DECEL_TIME = 0.6f;
-    public const float DECEL_TIME = 0.2f;
+    public const float ACCEL_TIME = 0.1f;
+    public const float AIR_ACCEL_TIME = 0.4f;
+    public const float AIR_DECEL_TIME = 0.4f;
+    public const float DECEL_TIME = 0.1f;
     public const float MOVE_SPEED = 5.0f;
     public const float GRAVITY_SCALE = 5.0f;
     public const float AIR_GRAVITY_SCALE = 2.0f;
@@ -20,6 +20,10 @@ public class Actor : MonoBehaviour {
     public float jumpspeed = JUMPSPEED;
     public float fallspeed = FALLSPEED;
 
+    float x_accel = 0.0f;
+    float x_velocity = 0.0f;
+    float global_x_velocity = 0.0f;
+
     public bool jump_pressed = false;
     public bool up_pressed = false;
     public bool down_pressed = false;
@@ -28,11 +32,27 @@ public class Actor : MonoBehaviour {
 
     public int max_health = 0;
     public int cur_health = 0;
+    public bool is_dying = false;
     public bool is_dead = false;
+    public bool instant_decel = false;
+    public bool touching_right = false;
+    public bool touching_left = false;
 
-
+    public bool detector_A = false;
+    public bool detector_B = false;
     public Rigidbody2D _rigidbody;
     public Rigidbody2D _platform;
+
+    //Hackable Actor stuff.
+    public ParticleSystem redhack_particles;
+    public ParticleSystem bluehack_particles;
+    public ParticleSystem cyanhack_particles;
+    public ParticleSystem purplehack_particles;
+
+    protected ParticleSystem.EmissionModule red_emitter;
+    protected ParticleSystem.EmissionModule blue_emitter;
+    protected ParticleSystem.EmissionModule cyan_emitter;
+    protected ParticleSystem.EmissionModule purple_emitter;
 
     protected BoxCollider2D _boxCollider;
     protected Transform _transform;
@@ -85,54 +105,88 @@ public class Actor : MonoBehaviour {
         }
     }
 
+    public void Uncontrolled_Horizontal_Movement()
+    {
+        x_velocity = 0.0f;
+
+        x_accel = (movespeed * Time.fixedDeltaTime) / decel_time;
+
+        if (_rigidbody.velocity.x > 0)
+        {
+            x_accel *= -1;
+        }
+
+        _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + x_accel, _rigidbody.velocity.y);
+
+        if (_rigidbody.velocity.x > -0.5 && _rigidbody.velocity.x < 0.5 && isOnGround)
+        {
+            _rigidbody.velocity = new Vector2(0, _rigidbody.velocity.y);
+            x_accel = 0;
+        }
+    }
+
     public void Horizontal_Movement(float direction)
     {
         if (direction != 0)
         {
-            float movement = direction * (movespeed * Time.fixedDeltaTime) / accel_time;
+            x_accel = direction * (movespeed * Time.fixedDeltaTime) / accel_time;
             if (direction > 0)
             {
-                _rigidbody.velocity = new Vector2(Mathf.Min(_rigidbody.velocity.x + movement, movespeed), _rigidbody.velocity.y);
                 _transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                 facing_right = true;
             }
             else
             {
-                _rigidbody.velocity = new Vector2(Mathf.Max(_rigidbody.velocity.x + movement, -movespeed), _rigidbody.velocity.y);
                 _transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
                 facing_right = false;
             }
-            //Seems to have a bug where when you're moving the same direction as the platform, your velocity goes the wrong way.
-            /*
-            if ((_platform != null))
+
+            if (x_velocity >= movespeed)
             {
-                Debug.Log("player xvel: " + _rigidbody.velocity.x + " platform xvel: " + _platform.velocity.x);
-                _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + _platform.velocity.x,
-                    _rigidbody.velocity.y);
-                Debug.Log("player total xvel: " + _rigidbody.velocity.x);
+                x_velocity = movespeed;          
             }
-            */
+            else if (x_velocity <= -movespeed)
+            {
+                x_velocity = -movespeed;
+            }
+            //Seems to have a bug where when you're moving the same direction as the platform, your velocity goes the wrong way.
         }
         else
         {
-            float movement = (movespeed * Time.fixedDeltaTime) / decel_time;
-
-            if (_rigidbody.velocity.x > 0)
+            if (instant_decel)
             {
-                movement *= -1;
+                x_velocity = 0;
             }
-
-            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + movement, _rigidbody.velocity.y);
-
-            if (_rigidbody.velocity.x > -3.5 && _rigidbody.velocity.x < 3.5 && isOnGround)
+            else
             {
-                _rigidbody.velocity = new Vector2(0, _rigidbody.velocity.y);
-            }
+                x_accel = (movespeed * Time.fixedDeltaTime) / decel_time;
 
-            if ((_platform != null))
-            {
-                _rigidbody.velocity = new Vector2(_platform.velocity.x, _platform.velocity.y);
+                if (x_velocity > 0)
+                {
+                    x_accel *= -1;
+                }
+                if (x_velocity > -0.5 && x_velocity < 0.5 && isOnGround)
+                {
+                    x_velocity = 0;
+                    x_accel = 0;
+                }
             }
+        }
+
+        
+
+        x_velocity = x_velocity + x_accel;
+
+        _rigidbody.velocity = new Vector2(x_velocity, _rigidbody.velocity.y);
+
+       //Debug.Log("local x_accel: " + x_accel + " local xvel: " + x_velocity + "Global velocity: " + _rigidbody.velocity.x);
+
+        if ((_platform != null))
+        {
+            //Debug.Log("player xvel: " + _rigidbody.velocity.x + " platform xvel: " + _platform.velocity.x + " acceleration: " + x_accel);
+            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + _platform.velocity.x,
+                _rigidbody.velocity.y);
+            //Debug.Log("player total xvel: " + _rigidbody.velocity.x);
         }
     }
 
@@ -190,18 +244,73 @@ public class Actor : MonoBehaviour {
 
         fsm = new FiniteStateMachine();
 
-        distToGround = _boxCollider.bounds.extents.y;
+        if(_boxCollider != null)
+        {
+            distToGround = _boxCollider.bounds.extents.y;
+        }
+        
+
+        if(redhack_particles != null)
+        {
+            red_emitter = redhack_particles.emission;
+            red_emitter.enabled = false;
+        }
+        if(bluehack_particles != null)
+        {
+            blue_emitter = bluehack_particles.emission;
+            blue_emitter.enabled = false;
+        }
+        if(cyanhack_particles != null)
+        {
+            cyan_emitter = cyanhack_particles.emission;
+            cyan_emitter.enabled = false;
+        }
+        if (purplehack_particles != null)
+        {
+            purple_emitter = purplehack_particles.emission;
+            purple_emitter.enabled = false;
+        }
+        
     }
 
+   
     void OnCollisionStay2D(Collision2D collider)
     {
         foreach(ContactPoint2D contact in collider.contacts)
         {
-            if(contact.normal.y == 1.0)
+            touching_left = false;
+            touching_right = false;
+            instant_decel = false;
+
+            if (contact.normal.y == 1.0)
             {
-                //if(isPlayer)Debug.Log("player is standing on a rigidbody");
                 _platform = collider.gameObject.GetComponent<Rigidbody2D>();
-                //if(isPlayer)Debug.Log(_platform);
+            }
+
+            if(contact.normal.x == 1.0)
+            {
+                touching_left = true;
+            }
+
+            if (contact.normal.x == -1.0)
+            {
+                touching_right = true;
+            }
+
+            if((facing_right && touching_right) || (!facing_right && touching_left))
+            {
+                //this bit is horrible, there has to be a better way...
+                if (contact.collider.gameObject.GetComponent<Rigidbody2D>())
+                {
+                    if (contact.collider.gameObject.GetComponent<Rigidbody2D>().isKinematic)
+                    {
+                        x_velocity = 0;
+                    }
+
+                }else
+                {
+                    x_velocity = 0;
+                }
             }
         }
     }
@@ -221,8 +330,8 @@ public class Actor : MonoBehaviour {
 
         
 
-        bool detector_A = Physics2D.Raycast(transform.position + extent_A, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
-        bool detector_B = Physics2D.Raycast(transform.position + extent_B, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
+        detector_A = Physics2D.Raycast(transform.position + extent_A, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
+        detector_B = Physics2D.Raycast(transform.position + extent_B, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
 
         return (detector_A || detector_B);
     }

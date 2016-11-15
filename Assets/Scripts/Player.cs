@@ -38,6 +38,21 @@ public class Player : Actor, IControllableActor, IAttackableActor {
         }
     }
 
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        Debug.Log("the player walked into something!");
+        if (collider.gameObject.CompareTag("Pickup"))
+        {
+            MonoBehaviour script = collider.gameObject.GetComponent<MonoBehaviour>();
+
+            if(script is HeartPickup)
+            {
+                (script as HeartPickup).OnPickUp(this);
+            }
+        }
+    }
+
+
     void ProcessHitFlicker()
     {
         if (hit_invuln_counter < hit_invuln_time)
@@ -171,7 +186,7 @@ public class Player : Actor, IControllableActor, IAttackableActor {
 
     public void takeDamage(int damage)
     {
-        if(hit_invuln || is_dead)
+        if(hit_invuln || is_dead || is_dying)
         {
             return;
         }
@@ -188,9 +203,18 @@ public class Player : Actor, IControllableActor, IAttackableActor {
 
     }
 
+    public void restoreHealth(int health)
+    {
+        cur_health += health;
+        if(cur_health > max_health)
+        {
+            cur_health = max_health;
+        }
+    }
+
     public void knockBack(Vector2 knockback)
     {
-        if (hit_invuln)
+        if (hit_invuln || is_dying)
         {
             return;
         }
@@ -392,7 +416,7 @@ public class PlayerHurt : FSM_State
 
     public override void FixedUpdate()
     {
-        _player.Horizontal_Movement(0.0f);
+        _player.Uncontrolled_Horizontal_Movement();
         _player.Vertical_Movement(false);
     }
 
@@ -436,6 +460,8 @@ public class PlayerDying : FSM_State
 
     public override void OnEnter()
     {
+        Debug.Log("Player is dying!");
+        _player.is_dying = true;
         dying_timer = 0.0f;
     }
 
