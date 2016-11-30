@@ -23,6 +23,7 @@ public class LaserCannon : Enemy, IHackableActor {
     public bool red_hack_active = false;
     public bool purple_hack_active = false;
 
+
     float laserbeamInitialLength;
 
     public void onHackBlue()
@@ -44,17 +45,17 @@ public class LaserCannon : Enemy, IHackableActor {
         {
             gameObject.layer = 9;
             Laserbeam.layer = 9;
-            _spriteRenderer.color = new Color(1, 0, 1);
+            //_spriteRenderer.color = new Color(1, 0, 1);
             purple_hack_active = true;
-            LaserbeamSprite.color = _spriteRenderer.color;
-            LaserbeamImpactSprite.color = _spriteRenderer.color;
+            LaserbeamSprite.color = new Color(1, 0, 1);
+            LaserbeamImpactSprite.color = new Color(1, 0, 1);
         }
         else
         {
             gameObject.layer = 8;
             Laserbeam.layer = 0;
             purple_hack_active = false;
-            _spriteRenderer.color = Color.white;
+            //_spriteRenderer.color = Color.white;
             if (red_hack_active)
             {
                 LaserbeamSprite.color = Color.red;
@@ -66,6 +67,9 @@ public class LaserCannon : Enemy, IHackableActor {
                 LaserbeamImpactSprite.color = Color.white;
             }
         }
+
+        _audiosource.clip = sound_purplehack;
+        _audiosource.Play();
     }
 
     public void onHackRed()
@@ -82,7 +86,8 @@ public class LaserCannon : Enemy, IHackableActor {
             LaserbeamSprite.color = Color.red;
             LaserbeamImpactSprite.color = Color.red;
         }
-       
+        _audiosource.clip = sound_redhack;
+        _audiosource.Play();
     }
 
     // Use this for initialization

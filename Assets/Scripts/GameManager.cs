@@ -18,23 +18,71 @@ public class GameManager : MonoBehaviour {
 
     public MonoBehaviour GameOverText;
     public MonoBehaviour LevelClearText;
-    
+    public MonoBehaviour GameClearText;
+    public Text ScoreText;
+
+    public static int _score;
+    public static int _score_at_start;
+
+    public string[] levelnames;
+    public static int current_level = 0;
+
+    public AudioSource _audiosource;
+
+    public static void UpdateScore(int score)
+    {
+        _score += score;
+        //Debug.Log("Bits: " + _score + " time: " + Time.time);
+        
+    }
+
+    public void ResetScore()
+    {
+        _score = 0;
+    }
+
     // Use this for initialization
-	void Start () {
+    void Start() {
         game_state = new FiniteStateMachine();
 
         state_gameplay = new GameState_Gameplay(this, game_state);
         state_gameover = new GameState_GameOver(this, game_state);
         state_levelclear = new GameState_LevelClear(this, game_state);
 
+        levelnames = new string[2]
+        {
+            "TestLevelWithGraphics",
+            "Level2"
+        };
+
         game_state.ChangeState(state_gameplay);
+
+        _score = _score_at_start;
+
+        _audiosource = GetComponent<AudioSource>();
+        if (!_audiosource.isPlaying)
+        {
+            _audiosource.Play();
+        }
 	}
 	
 	// Update is called once per frame
 	void Update () {
         game_state.Update();
         _health_slider.value = (float)player.cur_health / player.max_health;
-	}
+        ScoreText.text = "Bits: " + _score.ToString();
+    }
+
+    public void ReleasePlayerControls()
+    {
+        player.Jump_release();
+        player.Up_released();
+        player.Down_released();
+        player.Forward_released();
+        player.Special_released();
+        player.Attack_release();
+        player.Move(0.0f);
+    }
 
     public void ProcessPlayerControls()
     {
@@ -111,6 +159,7 @@ public class GameState_Gameplay : FSM_State {
     {
         _gm = gm;
     }
+    
 
     public override void FixedUpdate()
     {
@@ -197,8 +246,21 @@ public class GameState_LevelClear : FSM_State
 
     public override void OnEnter()
     {
-        Debug.Log("LevelClear!");
-        _gm.LevelClearText.enabled = true;
+        _gm.ReleasePlayerControls();
+        _gm.player.fsm.ChangeState(_gm.player.state_clear);
+        if (GameManager.current_level >= _gm.levelnames.Length - 1)
+        {
+            //Game complete!
+            Debug.Log("GameClear!");
+            _gm.GameClearText.enabled = true;
+        }
+        else
+        {
+            Debug.Log("LevelClear!");
+            _gm.LevelClearText.enabled = true;
+        }
+
+        
     }
 
     public override void OnExit()
@@ -210,7 +272,22 @@ public class GameState_LevelClear : FSM_State
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            GameManager.current_level++;
+            _gm._audiosource.Stop();
+            if(GameManager.current_level >= _gm.levelnames.Length)
+            {
+                GameManager.current_level = 0;
+                GameManager._score_at_start = 0;
+                SceneManager.LoadScene(_gm.levelnames[GameManager.current_level]);
+            }
+            else
+            {
+                GameManager._score_at_start = GameManager._score;
+                SceneManager.LoadScene(_gm.levelnames[GameManager.current_level]);
+            }
+            Debug.Log(SceneManager.GetActiveScene().name);
+
         }
     }
 }

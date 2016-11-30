@@ -202,6 +202,7 @@ public class PolygonHitboxWrapper : HitboxWrapper
     {
         _hbm.active_poly_collider = _poly; //needs to be made active_poly_collider or something
         _hbm.local_polycollider.SetPath(0, _hbm.active_poly_collider.GetPath(0)); //needs to be made local_poly_collider or something
+        _hbm.local_polycollider.offset = _poly.offset;
         _hbm.local_polycollider.enabled = true;
         _hbm.hitbox_activated = true;
     }

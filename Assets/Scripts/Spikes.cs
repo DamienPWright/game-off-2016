@@ -26,6 +26,13 @@ public class Spikes : MonoBehaviour, IHackableActor
     bool cyanhack_active = false;
     bool purplehack_active = false;
 
+    public AudioClip sound_redhack;
+    public AudioClip sound_bluehack;
+    public AudioClip sound_cyanhack;
+    public AudioClip sound_purplehack;
+
+    public AudioSource _audiosource;
+
     // Use this for initialization
     void Start()
     {
@@ -49,6 +56,8 @@ public class Spikes : MonoBehaviour, IHackableActor
             purple_emitter = purplehack_particles.emission;
             purple_emitter.enabled = false;
         }
+
+        _audiosource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -92,7 +101,7 @@ public class Spikes : MonoBehaviour, IHackableActor
 
     public void onHackBlue()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public void onHackCyan()
@@ -116,6 +125,8 @@ public class Spikes : MonoBehaviour, IHackableActor
         }
 
         onHack();
+        _audiosource.clip = sound_cyanhack;
+        _audiosource.Play();
     }
 
 
@@ -141,6 +152,8 @@ public class Spikes : MonoBehaviour, IHackableActor
 
         onHack();
 
+        _audiosource.clip = sound_purplehack;
+        _audiosource.Play();
 
     }
 

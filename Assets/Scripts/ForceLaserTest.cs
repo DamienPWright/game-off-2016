@@ -24,6 +24,13 @@ public class ForceLaserTest : MonoBehaviour, IHackableActor {
     bool cyanhack_active = false;
     bool purplehack_active = false;
 
+    public AudioClip sound_redhack;
+    public AudioClip sound_bluehack;
+    public AudioClip sound_cyanhack;
+    public AudioClip sound_purplehack;
+
+    public AudioSource _audiosource;
+
     // Use this for initialization
     void Start () {
         if (redhack_particles != null)
@@ -47,6 +54,9 @@ public class ForceLaserTest : MonoBehaviour, IHackableActor {
             purple_emitter.enabled = false;
         }
 
+        _audiosource = GetComponent<AudioSource>();
+
+        _audiosource.enabled = false;
         switch (initialHack)
         {
             case 0:
@@ -66,6 +76,7 @@ public class ForceLaserTest : MonoBehaviour, IHackableActor {
             default:
                 break;
         }
+        _audiosource.enabled = true;
     }
 	
 	// Update is called once per frame
@@ -103,7 +114,7 @@ public class ForceLaserTest : MonoBehaviour, IHackableActor {
 
     public void onHackRed()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public void onHackBlue()
@@ -122,6 +133,8 @@ public class ForceLaserTest : MonoBehaviour, IHackableActor {
         }
 
         onHack();
+        _audiosource.clip = sound_bluehack;
+        _audiosource.Play();
     }
 
     public void onHackCyan()
@@ -140,6 +153,8 @@ public class ForceLaserTest : MonoBehaviour, IHackableActor {
         }
 
         onHack();
+        _audiosource.clip = sound_cyanhack;
+        _audiosource.Play();
     }
 
     public void onHackPurple()
@@ -158,6 +173,8 @@ public class ForceLaserTest : MonoBehaviour, IHackableActor {
         }
 
         onHack();
+        _audiosource.clip = sound_purplehack;
+        _audiosource.Play();
     }
 
     void onHack()

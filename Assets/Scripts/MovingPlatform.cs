@@ -6,7 +6,7 @@ public class MovingPlatform : Actor {
     public float movement_distance = 10.0f;
     public float cycle_time = 1.0f;
     public int movement_type = 0;
-    float cycle_timer = 0.0f;
+    public float cycle_timer = 0.0f;
     float xvel = 0.0f;
     float yvel = 0.0f;
     float initial_x = 0.0f;

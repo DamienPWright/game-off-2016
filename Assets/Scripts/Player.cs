@@ -4,7 +4,7 @@ using System;
 
 public class Player : Actor, IControllableActor, IAttackableActor {
 
-    
+
 
     public PlayerIdle state_idle;
     public PlayerAirborn state_airborn;
@@ -12,9 +12,24 @@ public class Player : Actor, IControllableActor, IAttackableActor {
     public PlayerHurt state_hurt;
     public PlayerDying state_dying;
     public PlayerDead state_dead;
+    public PlayerLevelClearing state_clear;
     public bool attack_pressed;
     public bool special_pressed;
+
+
+    public AudioClip sound_hurt;
+    public AudioClip sound_jump;
+    public AudioClip sound_attack;
+    public AudioClip sound_special;
+    public AudioClip sound_upspecial;
+    public AudioClip sound_forwardspecial;
+    public AudioClip sound_downspecial;
+    public AudioClip sound_die;
+    public AudioClip sound_clear;
+    public AudioClip sound_teleport;
+
     bool hit_invuln = false;
+    public bool invuln = false;
     float hit_invuln_counter = 0;
     float hit_invuln_time = 1.0f;
     public float HitInvulnTime
@@ -26,7 +41,16 @@ public class Player : Actor, IControllableActor, IAttackableActor {
     public enum AnimId
     {
         idle=0,
-        attack1
+        attack1,
+        special,
+        upSpecial,
+        downSpecial,
+        forwardSpecial,
+        hurt,
+        jump,
+        run,
+        die,
+        clear
     }
 
     void Update()
@@ -36,6 +60,9 @@ public class Player : Actor, IControllableActor, IAttackableActor {
         {
            ProcessHitFlicker();
         }
+
+        _animator.SetFloat("YVel", _rigidbody.velocity.y);
+        _animator.SetBool("OnGround", IsOnGround);
     }
 
     void OnTriggerEnter2D(Collider2D collider)
@@ -48,6 +75,12 @@ public class Player : Actor, IControllableActor, IAttackableActor {
             if(script is HeartPickup)
             {
                 (script as HeartPickup).OnPickUp(this);
+            }
+
+            if (script is CollectableBit)
+            {
+                (script as CollectableBit).Collect();
+                Debug.Log("collected time: " + Time.time);
             }
         }
     }
@@ -136,7 +169,10 @@ public class Player : Actor, IControllableActor, IAttackableActor {
         if (!jump_locked)
         {
             jump_pressed = true;
+           
         }
+
+        
     }
 
     public void Jump_release()
@@ -177,6 +213,7 @@ public class Player : Actor, IControllableActor, IAttackableActor {
         state_hurt = new PlayerHurt(fsm, this);
         state_dying = new PlayerDying(fsm, this);
         state_dead = new PlayerDead(fsm, this);
+        state_clear = new PlayerLevelClearing(fsm, this);
 
         fsm.ChangeState(state_idle);
 
@@ -186,7 +223,7 @@ public class Player : Actor, IControllableActor, IAttackableActor {
 
     public void takeDamage(int damage)
     {
-        if(hit_invuln || is_dead || is_dying)
+        if(hit_invuln || is_dead || is_dying || invuln)
         {
             return;
         }
@@ -214,7 +251,7 @@ public class Player : Actor, IControllableActor, IAttackableActor {
 
     public void knockBack(Vector2 knockback)
     {
-        if (hit_invuln || is_dying)
+        if (hit_invuln || is_dying || invuln)
         {
             return;
         }
@@ -270,7 +307,17 @@ public class PlayerIdle : FSM_State
 
     public override void Update()
     {
-        if(!_player.IsOnGround)
+        if (_player.isOnGround && _player.jump_pressed)
+        {
+            if (!_player._audiosource.isPlaying)
+            {
+                _player._audiosource.clip = _player.sound_jump;
+                _player._audiosource.Play();
+            }
+            
+        }
+
+        if (!_player.IsOnGround)
         {
             _fsm.ChangeState(_player.state_airborn);
             return;
@@ -282,6 +329,15 @@ public class PlayerIdle : FSM_State
             return;
         }
 
+        //animation
+        if(_player.hor_move_axis == 0)
+        {
+            _player.setAnimation((int)Player.AnimId.idle);
+        }
+        else
+        {
+            _player.setAnimation((int)Player.AnimId.run);
+        }
     }
 }
 
@@ -304,6 +360,7 @@ public class PlayerAirborn : FSM_State
     {
         Debug.Log("Airborn state entered");
         _player.setToAirAccel();
+        _player.setAnimation((int)Player.AnimId.jump);
     }
 
     public override void OnExit()
@@ -329,6 +386,7 @@ public class PlayerAirborn : FSM_State
 public class PlayerAttack : FSM_State
 {
     Player _player;
+    bool isInAir = false;
 
     public PlayerAttack(FiniteStateMachine fsm, Player player):base(fsm)
     {
@@ -362,29 +420,41 @@ public class PlayerAttack : FSM_State
         if (_player.attack_pressed)
         {
             _player._attack_manager.doNormalAttack();
+            _player._audiosource.clip = _player.sound_attack;
+            _player._audiosource.Play();
         }
         else if (_player.special_pressed)
         {
             if (_player.up_pressed)
             {
                 _player._attack_manager.doUpSpecialAttack();
+                _player._audiosource.clip = _player.sound_upspecial;
+                _player._audiosource.Play();
             }
             else if (_player.down_pressed)
             {
                 _player._attack_manager.doDownSpecialAttack();
+                _player._audiosource.clip = _player.sound_downspecial;
+                _player._audiosource.Play();
             }
             else if (_player.forward_pressed)
             {
                 _player._attack_manager.doForwardSpecialAttack();
+                _player._audiosource.clip = _player.sound_forwardspecial;
+                _player._audiosource.Play();
             }
             else
             {
                 _player._attack_manager.doSpecialAttack();
+                _player._audiosource.clip = _player.sound_special;
+                _player._audiosource.Play();
             }
         }
         Debug.Log("Hack colour: " + _player._attack_manager.getHackColour());
 
         _player.setAnimation(_player._attack_manager.getAttackAnim());
+
+        isInAir = !_player.IsOnGround;
     }
 
     public override void OnExit()
@@ -398,6 +468,21 @@ public class PlayerAttack : FSM_State
         {
             _fsm.ChangeState(_player.state_idle);
             _player._attack_manager.resetAttackCombo();
+            return;
+        }
+
+        if(isInAir && _player.IsOnGround)
+        {
+            _fsm.ChangeState(_player.state_idle);
+            _player._attack_manager.resetAttackCombo();
+            return;
+        }
+
+        if (!isInAir && !_player.IsOnGround)
+        {
+            _fsm.ChangeState(_player.state_idle);
+            _player._attack_manager.resetAttackCombo();
+            return;
         }
     }
 }
@@ -423,6 +508,9 @@ public class PlayerHurt : FSM_State
     public override void OnEnter()
     {
         hurt_timer = 0.0f;
+        _player.setAnimation((int)Player.AnimId.hurt);
+        _player._audiosource.clip = _player.sound_hurt;
+        _player._audiosource.Play();
     }
 
     public override void OnExit()
@@ -463,6 +551,11 @@ public class PlayerDying : FSM_State
         Debug.Log("Player is dying!");
         _player.is_dying = true;
         dying_timer = 0.0f;
+        _player._audiosource.clip = _player.sound_die;
+        _player._audiosource.Play();
+        _player.setAnimation((int)Player.AnimId.die);
+        _player._rigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+        _player._boxCollider.enabled = false;
     }
 
     public override void OnExit()
@@ -510,5 +603,51 @@ public class PlayerDead : FSM_State
     public override void Update()
     {
 
+    }
+}
+
+
+public class PlayerLevelClearing : FSM_State
+{
+    Player _player;
+    float clear_time = 2.0f;
+    float clear_timer = 0.0f;
+    bool clear_sound_playing = false;
+
+    public PlayerLevelClearing(FiniteStateMachine fsm, Player player) : base(fsm)
+    {
+        _player = player;
+    }
+
+    public override void FixedUpdate()
+    {
+        _player.Horizontal_Movement(0.0f);
+        _player.Vertical_Movement(false);
+    }
+
+    public override void OnEnter()
+    {
+        _player.invuln = true;
+        _player.setAnimation((int)Player.AnimId.clear);
+        _player._audiosource.clip = _player.sound_clear;
+        _player._audiosource.Play();
+       
+    }
+
+    public override void OnExit()
+    {
+
+    }
+
+    public override void Update()
+    {
+        clear_timer += Time.deltaTime;
+
+        if (clear_timer > clear_time && !clear_sound_playing)
+        {
+            _player._audiosource.clip = _player.sound_teleport;
+            _player._audiosource.Play();
+            clear_sound_playing = true;
+        }
     }
 }

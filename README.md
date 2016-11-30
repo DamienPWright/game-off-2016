@@ -9,79 +9,66 @@
   </sup>
 </div>
 
-## The Challenge
+## Unnamed Hacking Themed Game
 
-You have the entire month of November to create a game *loosely* based on the theme **hacking, modding and/or augmenting**.
+In this platforming game, you play as the avatar of a hacker invading the cyberspace of some computer system. Numerous defenses are in place to prevent you getting your grubby little digital mits on those precious bits, but you have some unique abilities to help you deal with them and even turn their defenses against each other. 
 
-What do we mean by **loosely** based on hacking, modding and/or augmenting? We literally mean, *loosely* based. Some examples might be:
+You are armed with a hacking omnitool - a weapon which in cyberspace can change its shape. Should you strike objects with certain attacks, you'll inject some code into them that may alter their behaviour. Beware, that some things may be ready for your payloads and will react violently to a hacking attempt. 
 
-* an endless runner where you *hack* down binary trees in your path with a pixelated axe,
-* a *modern* take on a classic e.g. a roguelike set in a 3D or VR world, or
-* an *augmented* reality game bringing octopus/cat hybrids into the real world.
+Fight your way through the system's defenses and explore to get as many bits as you can! You never know where certain chunks of data might be hiding...
 
-Unleash your creativity. You can work alone or with a team and build for any platform or device. The use of open source game engines and libraries is encouraged but not required.
+## Controls
 
-We'll highlight some of our favorites on the GitHub blog, and the world will get to enjoy (and maybe even contribute to and/or learn from) your creations.
+* W / <- - Left
+* D / -> - Right
+* Left Mouse - Normal attack
+* Right Mouse - Blue attack
+* Forward + Right Mouse - Cyan attack
+* Up + Right Mouse - Red Attack
+* Down + Right Mouse - Purple Attack
 
-## How to participate
+##Hack Effects:
+The effects differ from object to object, but otherwise the different hacks have the following general effects: 
+* Red hack - Attempts to disable the enemy's means to tell friend from foe. It also makes some objects deadly to enemies.
+* Cyan hack - Attempts to turn objects solid.
+* Purple hack - Attempts to turn objects non-solid or disables/re-enables them.
+* Blue hack - The wild card. The effect differs from object to object.
+* Hacks are toggle-able. Simply strike the object with the same hack again to undo the effect. 
+* Some objects allow you to stack hacks together.
 
-* [Sign up for a free personal account][github-signup] if you don't already have one.
-* Fork [this repository][game-off-repo] to your personal account (or to a [free organization account][github-signup-org]).
-* Clone the repository on your computer and build your game.
-* Push your game source code to your forked repository before Dec 1st.
-* Update the `README.md` file to include a description of your game, how/where to play/download it, how to build/compile it, what dependencies it has, etc.
-* Submit your final game using this [form][wufoo-form].
 
-## It's dangerous to go alone <img src="https://octodex.github.com/images/linktocat.jpg" height="40">
+##Technical Details
 
-If you're **new to Git, GitHub, or version control**…
+This game has only been tested on Windows 7 and 10. It is not guaranteed to build or work on other systems. 
+This game has not been tested at very high resolutions. Unknown graphical quirks may occur. 
+This game may work with a game pad, but it hasn't been tested with one. 
 
-* [Git Documentation](https://git-scm.com/documentation) - everything you need to know about version control, and how to get started with Git.
-* [GitHub Help](https://help.github.com/) - everything you need to know about GitHub.
-* Questions about GitHub? Please [contact our Support team][github-support] and they'll be delighted to help you.
-* Questions specific to the GitHub Game Off? Please [create an issue][game-off-repo-issues]. This will be the official FAQ.
 
-The official Twitter hashtag for the Game Off is `#ggo16`. We look forward to playing with your creations.
+##Playing
 
-GLHF! <3
+Headphone warning - I have not had the chance to test audio levels on a lot of equipment. Turn your volume all the way down before running!
+Download the game from this link here: https://mega.nz/#!MNxlWSDD!aO5Z9nA7isR90nb2Fwfza9Isymn_XotQxCHKFrTXORA
 
-## お題
+Unzip the entire folder somewhere. All the files are required in order for the game to run. 
 
-11月いっぱいを使って、ゲームを作ってください。作ってもらいたいゲームのテーマは大まかに言って、**hacking, modding and/or augmenting(ハック、改造もしくは拡張)**です。
+The game lacks any kind of menu, so you'll need to Alt+F4 to exit. 
 
-"**大まか**に言ってhacking, modding and/or augmenting(ハック、改造もしくは拡張)"とはどういう意味でしょうか？ 文字通り、*大まか*にテーマに沿っていればいいということです。
+##Watch the Game
 
-例えば、こんな例も含まれるということです:
+If you're unable to play but are interested in checking out how it's meant to look, feel free to give the following demo video a watch: https://youtu.be/6Y3HbWMyLIA
 
-* ピクセル製の斧をつかってあなたが*叩き切った*(*hack* down)バイナリツリー上をランナーが走り続けるゲームとか
-* ゲームの古典をベースに*現代的*(*modern*)な解釈をするとか(例えばローグライクゲームを3DやVRの世界で再現してみる)
-* タコと猫のハイブリッドを現実世界に持ち込むような*拡張*現実(*augmented* reality)ゲームとか
 
-みなさんのクリエイティビティを最大限発揮できるように、1人で作業してもチームで作業しても問題ありませんし、作るゲームがどんなプラットフォーム向けでもどんなデバイス向けでも不問とします。また、オープンソースのゲームエンジンやライブラリを使用することは歓迎しますが、必須ではありません。
 
-ご応募いただいたゲームのうちいくつかはGitHubのブログで取り上げる予定です。世界中があなたが作ったゲームを楽しんでくれると思います。（そしてあなたのゲームに対して貢献もしてくれるかもしれませんし、同時にあなたのゲームから何かを学び取ることもあるでしょう）
 
-## 参加方法
+## Credits
 
-* まだGitHubのアカウントを持っていない場合、[GitHubにサインアップしてアカウントを作ってください。（無料のもので問題ありません）][github-signup]
-* [このリポジトリ][game-off-repo]を自分のアカウントにフォークしてください。（もしくは[オーガニゼーションにフォークしても問題ありません。もちろん無料プランでいいです。][github-signup-org])
-* 自身のコンピュータにリポジトリをクローンして、ゲームを開発してください。
-* ゲームのソースコードをフォークした自分のリポジトリに12月1日になる前にプッシュしてください。
-* `README.md`ファイルを更新して、ゲームの説明、プレイの仕方、ダウンロードの仕方、またはビルド/コンパイルの方法、依存しているライブラリ等の説明、等々、必要な情報を含めてください。
-* 最後にこの[フォーム][wufoo-form]を使ってゲームをサブミットしてください。
+* Development, Graphics, Sounds - Damien Wright
+* Character design consultency - Rebelmaren
+* Music: http://grumblelabs.com/ 
+** Music not included in repository due to uncertainty with redistribution rights. 
+* Sounds created using SFXR
+* Developed in Unity 5.3.2f1
 
-## ヒトリデハキケンジャ コレヲ サズケヨウ <img src="https://octodex.github.com/images/linktocat.jpg" height="40">
-
-もし**GitやGitHub、バージョン管理そのものについて初心者なのであれば**...
-
-* [Git Documentation](https://git-scm.com/documentation) - バージョンコントロールについてと、Gitを使い始めるために必要な情報はここにあります。（日本語で読める情報としては[Pro Gitの日本語版](https://git-scm.com/book/ja/v2)があります）
-* [GitHub Help](https://help.github.com/) - GitHubについてはこちらを参照してください。
-* GitHubについて質問したいことがあれば、ぜひ[ここから問い合わせてください！（ただし英語でお願いします :bow: )][github-support] サポートチームが助けてくれます。
-* GitHub Game Offに関する質問については、[ここにIssueを作って聞いてください。（英語でお願いします）][game-off-repo-issues]. これが公式のFAQになっていく予定です。
-
-このGame OffのためのTwitterの公式ハッシュタグは`#ggo16`です。皆さんのゲームで遊べるのを楽しみにしています。
-
-GLHF! <3
 
 <!-- links -->
 [game-off-repo]:        https://github.com/github/game-off-2016/

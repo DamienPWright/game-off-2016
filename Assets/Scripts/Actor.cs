@@ -42,6 +42,7 @@ public class Actor : MonoBehaviour {
     public bool detector_B = false;
     public Rigidbody2D _rigidbody;
     public Rigidbody2D _platform;
+    public AudioSource _audiosource;
 
     //Hackable Actor stuff.
     public ParticleSystem redhack_particles;
@@ -54,7 +55,7 @@ public class Actor : MonoBehaviour {
     protected ParticleSystem.EmissionModule cyan_emitter;
     protected ParticleSystem.EmissionModule purple_emitter;
 
-    protected BoxCollider2D _boxCollider;
+    public BoxCollider2D _boxCollider;
     protected Transform _transform;
 
     protected Animator _animator;
@@ -82,6 +83,7 @@ public class Actor : MonoBehaviour {
     }
 
     float distToGround;
+    public float detectorExtension = 0.07f;
 
     public FiniteStateMachine fsm;
     private float stored_animspeed;
@@ -160,12 +162,17 @@ public class Actor : MonoBehaviour {
             else
             {
                 x_accel = (movespeed * Time.fixedDeltaTime) / decel_time;
-
+               
                 if (x_velocity > 0)
                 {
                     x_accel *= -1;
                 }
-                if (x_velocity > -0.5 && x_velocity < 0.5 && isOnGround)
+                if (x_velocity > -1.8 && x_velocity < 1.8 && isOnGround)
+                {
+                    x_velocity = 0;
+                    x_accel = 0;
+                }
+                if (x_velocity > -0.36 && x_velocity < 0.36 && !isOnGround)
                 {
                     x_velocity = 0;
                     x_accel = 0;
@@ -173,7 +180,7 @@ public class Actor : MonoBehaviour {
             }
         }
 
-        
+        //Debug.Log("player total xvel: " + _rigidbody.velocity.x);
 
         x_velocity = x_velocity + x_accel;
 
@@ -186,7 +193,7 @@ public class Actor : MonoBehaviour {
             //Debug.Log("player xvel: " + _rigidbody.velocity.x + " platform xvel: " + _platform.velocity.x + " acceleration: " + x_accel);
             _rigidbody.velocity = new Vector2(_rigidbody.velocity.x + _platform.velocity.x,
                 _rigidbody.velocity.y);
-            //Debug.Log("player total xvel: " + _rigidbody.velocity.x);
+            
         }
     }
 
@@ -241,6 +248,7 @@ public class Actor : MonoBehaviour {
         _animator = GetComponentInChildren<Animator>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _transform = GetComponent<Transform>();
+        _audiosource = GetComponent<AudioSource>();
 
         fsm = new FiniteStateMachine();
 
@@ -330,8 +338,8 @@ public class Actor : MonoBehaviour {
 
         
 
-        detector_A = Physics2D.Raycast(transform.position + extent_A, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
-        detector_B = Physics2D.Raycast(transform.position + extent_B, -Vector3.up, distToGround + 0.07f, LayerMask.GetMask("env_solid"));
+        detector_A = Physics2D.Raycast(transform.position + extent_A, -Vector3.up, distToGround + detectorExtension, LayerMask.GetMask("env_solid"));
+        detector_B = Physics2D.Raycast(transform.position + extent_B, -Vector3.up, distToGround + detectorExtension, LayerMask.GetMask("env_solid"));
 
         return (detector_A || detector_B);
     }

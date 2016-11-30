@@ -69,6 +69,8 @@
     <Compile Include="Assets\Scripts\AttackAssembler.cs" />
     <Compile Include="Assets\Scripts\AttackContainer.cs" />
     <Compile Include="Assets\Scripts\AttackManager.cs" />
+    <Compile Include="Assets\Scripts\BackGround.cs" />
+    <Compile Include="Assets\Scripts\CollectableBit.cs" />
     <Compile Include="Assets\Scripts\Crate.cs" />
     <Compile Include="Assets\Scripts\Enemy.cs" />
     <Compile Include="Assets\Scripts\EnemyCommon.cs" />

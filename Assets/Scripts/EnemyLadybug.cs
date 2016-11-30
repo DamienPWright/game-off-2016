@@ -11,6 +11,9 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
     public LadybugDead state_dead;
     public LadybugWander state_wander;
 
+    public AudioClip sound_hurt;
+    public AudioClip sound_die;
+
     public Collider2D[] triggers; 
 
     bool red_hack_active = false;
@@ -26,6 +29,12 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
         get { return hit_invuln_time; }
     }
 
+    public enum AnimID
+    {
+        idle=0,
+        hurt,
+        dead
+    }
 
     new const float MOVE_SPEED = 2.0f;
 
@@ -58,12 +67,12 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
 
     public void onHackBlue()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public void onHackCyan()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public void onHackPurple()
@@ -79,6 +88,8 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
             movespeed = MOVE_SPEED * 4;
         }
         purple_emitter.enabled = purple_hack_active;
+        _audiosource.clip = sound_purplehack;
+        _audiosource.Play();
     }
 
     public void onHackRed()
@@ -94,6 +105,8 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
             //_spriteRenderer.color = Color.red;
         }
         red_emitter.enabled = red_hack_active;
+        _audiosource.clip = sound_redhack;
+        _audiosource.Play();
     }
 
     public void takeDamage(int damage)
@@ -152,6 +165,8 @@ public class EnemyLadybug : Enemy, IAttackableActor, IHackableActor
         state_hurt = new LadybugHurt(fsm, this);
         state_wander = new LadybugWander(fsm, this);
 
+        detectorExtension = 0.3f;
+
         fsm.ChangeState(state_idle);
     }
 
@@ -197,12 +212,14 @@ public class LadybugIdle : FSM_State
     {
         _actor.Horizontal_Movement(_actor.hor_move_axis);
         _actor.Vertical_Movement(_actor.jump_pressed);
+        
     }
 
     public override void OnEnter()
     {
         //Debug.Log("TestEnemy idle entered");
         idle_timer = 0.0f;
+        _actor.setAnimation((int)EnemyLadybug.AnimID.idle);
     }
 
     public override void OnExit()
@@ -245,6 +262,9 @@ public class LadybugHurt : FSM_State
         Debug.Log("TestEnemy hurt entered");
         _actor.disableTriggers();
         counter = 0.0f;
+        _actor.setAnimation((int)EnemyLadybug.AnimID.hurt);
+        _actor._audiosource.clip = _actor.sound_hurt;
+        _actor._audiosource.Play();
     }
 
     public override void OnExit()
@@ -282,8 +302,7 @@ public class LadybugDie : FSM_State
 
     public override void FixedUpdate()
     {
-        _actor.Horizontal_Movement(0.0f);
-        _actor.Vertical_Movement(false);
+        _actor._rigidbody.velocity = Vector2.zero;
     }
 
     public override void OnEnter()
@@ -292,6 +311,11 @@ public class LadybugDie : FSM_State
         _actor.is_dead = true;
         counter = 0.0f;
         _actor.disableTriggers();
+        _actor._boxCollider.enabled = false;
+        _actor._rigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+        _actor.setAnimation((int)EnemyLadybug.AnimID.dead);
+        _actor._audiosource.clip = _actor.sound_die;
+        _actor._audiosource.Play();
     }
 
     public override void OnExit()
@@ -322,14 +346,14 @@ public class LadybugDead : FSM_State
     public override void FixedUpdate()
     {
 
-        _actor.Horizontal_Movement(0.0f);
-        _actor.Vertical_Movement(false);
+        _actor._rigidbody.velocity = Vector2.zero;
     }
 
     public override void OnEnter()
     {
         Debug.Log("TestEnemy dead");
-        _actor.gameObject.SetActive(false); 
+        _actor.gameObject.SetActive(false);
+        
     }
 
     public override void OnExit()
